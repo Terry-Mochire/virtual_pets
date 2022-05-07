@@ -1,4 +1,5 @@
 import org.sql2o.Connection;
+import org.sql2o.Sql2oException;
 
 import java.util.List;
 
@@ -60,6 +61,25 @@ public class Person {
                     .addParameter("id", id)
                     .executeAndFetchFirst(Person.class);
             return person;
+        }
+    }
+
+    public List<Monster> getMonsters() {
+        try(Connection con = DB.sql2o.open()) {
+            String sql = "SELECT * FROM monsters where personId=:id";
+            return con.createQuery(sql)
+                    .addParameter("id", this.id)
+                    .executeAndFetch(Monster.class);
+        }
+    }
+
+    public static void clearAll() {
+        String sql = "DELETE from persons";
+        try (Connection con = DB.sql2o.open()) {
+            con.createQuery(sql)
+                    .executeUpdate();
+        } catch (Sql2oException ex){
+            System.out.println(ex);
         }
     }
 

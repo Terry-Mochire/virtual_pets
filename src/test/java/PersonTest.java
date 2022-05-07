@@ -1,7 +1,19 @@
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+
 import static org.junit.Assert.*;
 
 public class PersonTest {
+
+    @AfterEach
+    void tearDown() {
+        Person.clearAll();
+    }
+
 
     @Rule
     public DatabaseRule database = new DatabaseRule();
@@ -63,6 +75,18 @@ public class PersonTest {
         Person secondPerson = new Person("Harriet", "harriet@harriet.com");
         secondPerson.save();
         assertEquals(Person.find(secondPerson.getId()), secondPerson);
+    }
+
+    @Test
+    public void getMonsters_retrievesAllMonstersFromDatabase_monstersList() {
+        Person testPerson = new Person("Henry", "henry@henry.com");
+        testPerson.save();
+        Monster firstMonster = new Monster("Bubbles", testPerson.getId());
+        firstMonster.save();
+        Monster secondMonster = new Monster("Spud", testPerson.getId());
+        secondMonster.save();
+        Monster[] monsters = new Monster[] { firstMonster, secondMonster };
+        assertTrue(testPerson.getMonsters().containsAll(Arrays.asList(monsters)));
     }
 
 }
