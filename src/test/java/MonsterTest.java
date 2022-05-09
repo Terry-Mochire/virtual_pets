@@ -2,6 +2,7 @@ import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 
@@ -10,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class MonsterTest {
     @Rule
     public DatabaseRule database = new DatabaseRule();
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     @BeforeEach
     void setUp() {
@@ -82,4 +86,128 @@ class MonsterTest {
         assertEquals(savedMonster.getPersonId(), testPerson.getId());
     }
 
+    @Test
+    public void monster_instantiatesWithHalfFullPlayLevel(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        assertEquals(testMonster.getPlayLevel(), (Monster.MAX_PLAY_LEVEL / 2));
+    }
+
+    @Test
+    public void monster_instantiatesWithHalfFullSleepLevel(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        assertEquals(testMonster.getSleepLevel(), (Monster.MAX_SLEEP_LEVEL / 2));
+    }
+
+    @Test
+    public void monster_instantiatesWithHalfFullFoodLevel(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        assertEquals(testMonster.getFoodLevel(), (Monster.MAX_FOOD_LEVEL / 2));
+    }
+
+    @Test
+    public void isAlive_confirmsMonsterIsAliveIfAllLevelsAboveMinimum_true(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        assertEquals(testMonster.isAlive(), true);
+    }
+
+    @Test
+    public void depleteLevels_reducesAllLevels(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        testMonster.depleteLevels();
+        assertEquals(testMonster.getFoodLevel(), (Monster.MAX_FOOD_LEVEL / 2) - 1);
+        assertEquals(testMonster.getSleepLevel(), (Monster.MAX_SLEEP_LEVEL / 2) - 1);
+        assertEquals(testMonster.getPlayLevel(), (Monster.MAX_PLAY_LEVEL / 2) - 1);
+    }
+
+    @Test
+    public void isAlive_recognizesMonsterIsDeadWhenLevelsReachMinimum_false(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        for(int i = Monster.MIN_ALL_LEVELS; i <= Monster.MAX_FOOD_LEVEL; i++){
+            testMonster.depleteLevels();
+        }
+        assertEquals(testMonster.isAlive(), false);
+    }
+
+    @Test
+    public void play_increasesMonsterPlayLevel(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        testMonster.play();
+        assertTrue(testMonster.getPlayLevel() > (Monster.MAX_PLAY_LEVEL / 2));
+    }
+
+    @Test
+    public void sleep_increasesMonsterSleepLevel(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        testMonster.sleep();
+        assertTrue(testMonster.getSleepLevel() > (Monster.MAX_SLEEP_LEVEL / 2));
+    }
+
+    @Test
+    public void feed_increasesMonsterFoodLevel(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        testMonster.feed();
+        assertTrue(testMonster.getFoodLevel() > (Monster.MAX_FOOD_LEVEL / 2));
+    }
+
+    @Test
+    public void monster_foodLevelCannotGoBeyondMaxValue(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_FOOD_LEVEL); i++){
+            try {
+                testMonster.feed();
+            } catch (UnsupportedOperationException exception){ }
+        }
+        assertTrue(testMonster.getFoodLevel() <= Monster.MAX_FOOD_LEVEL);
+    }
+
+    @Test
+    public void feed_throwsExceptionIfFoodLevelIsAtMaxValue(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        exception.expect(UnsupportedOperationException.class);
+        for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_FOOD_LEVEL); i++){
+            try {
+                testMonster.feed();
+            } catch (UnsupportedOperationException exception){ }
+        }
+    }
+
+    @Test
+    public void play_throwsExceptionIfPlayLevelIsAtMaxValue(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        exception.expect(UnsupportedOperationException.class);
+        for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_FOOD_LEVEL); i++){
+            testMonster.play();
+        }
+    }
+
+    @Test
+    public void monster_playLevelCannotGoBeyondMaxValue(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_PLAY_LEVEL); i++){
+            try {
+                testMonster.play();
+            } catch (UnsupportedOperationException exception){ }
+        }
+        assertTrue(testMonster.getPlayLevel() <= Monster.MAX_PLAY_LEVEL);
+    }
+
+    @Test
+    public void sleep_throwsExceptionIfSleepLevelIsAtMaxValue(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        exception.expect(UnsupportedOperationException.class);
+        for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_FOOD_LEVEL); i++){
+            testMonster.sleep();
+        }
+    }
+
+    @Test
+    public void monster_sleepLevelCannotGoBeyondMaxValue(){
+        Monster testMonster = new Monster("Bubbles", 1);
+        for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_SLEEP_LEVEL); i++){
+            try {
+                testMonster.sleep();
+            } catch (UnsupportedOperationException exception){ }
+        }
+        assertTrue(testMonster.getSleepLevel() <= Monster.MAX_SLEEP_LEVEL);
+    }
 }
